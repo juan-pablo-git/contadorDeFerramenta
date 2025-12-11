@@ -72,19 +72,41 @@
 </style>
 </head>
 <body>
+     <script>
+        window.onload = function () {
+     fetch("http://localhost:3001/getCars?codigo="+localStorage.getItem("codigo"), {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            }).then(r => r.json()).then(r=>{
+                if(r.status == 200){
+                    let val = r.valores
+                    console.log(val)
+                    val.map((iten)=>{
+                        document.getElementsByClassName("container")[0].innerHTML += `
+                        <div class="card">
+            <div class="card-title">${iten[1]}</div>
+        </div>
+                        `
+                    })
+                }
+            })
+};
+    </script>
 
     <h1>CARRINHOS</h1>
 
     <div class="container">
-        <div class="card">
-            <div class="card-title">Carrinho 1</div>
-            <div class="card-info">4 GAVETAS<br>100 PEÇAS</div>
-        </div>
+            <!-- <div class="card">
+                <div class="card-title">Carrinho 1</div>
+                <div class="card-info">4 GAVETAS<br>100 PEÇAS</div>
+            </div>
 
-        <div class="card">
-            <div class="card-title">Carrinho 2</div>
-            <div class="card-info">4 GAVETAS<br>100 PEÇAS</div>
-        </div>
+            <div class="card">
+                <div class="card-title">Carrinho 2</div>
+                <div class="card-info">4 GAVETAS<br>100 PEÇAS</div>
+            </div> -->
     </div>
 
     <div class="button-area">
