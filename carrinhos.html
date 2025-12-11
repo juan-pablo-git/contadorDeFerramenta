@@ -1,104 +1,127 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Carrinhos</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrinhos</title>
 
-<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #ffffff;
-        text-align: center;
-    }
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            text-align: center;
+        }
 
-    h1 {
-        margin-top: 30px;
-        font-size: 26px;
-        font-weight: 700;
-    }
+        h1 {
+            margin-top: 30px;
+            font-size: 26px;
+            font-weight: 700;
+        }
 
-    .container {
-        display: flex;
-        justify-content: center;
-        gap: 25px;
-        margin-top: 40px;
-    }
+        .container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 40px;
+        }
 
-    .card {
-        width: 150px;
-        height: 120px;
-        background: #d9d9d9;
-        border-radius: 4px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-    }
+        .card {
+            width: 150px;
+            height: 120px;
+            background: #d9d9d9;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
 
-    .card-title {
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
+        .card-title {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
 
-    .card-info {
-        font-size: 13px;
-        font-weight: 600;
-        color: #333;
-        line-height: 16px;
-    }
+        .card-info {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            line-height: 16px;
+        }
 
-    .button-area {
-        width: 100%;
-        position: fixed;
-        bottom: 25px;
-        display: flex;
-        justify-content: center;
-    }
+        .button-area {
+            width: 100%;
+            position: fixed;
+            bottom: 25px;
+            display: flex;
+            justify-content: center;
+        }
 
-    .btn {
-        background: red;
-        color: #fff;
-        padding: 15px 40px;
-        border-radius: 10px;
-        font-size: 20px;
-        font-weight: bold;
-        border: none;
-        cursor: pointer;
-    }
-
-</style>
+        .btn {
+            background: red;
+            color: #fff;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
+
 <body>
-     <script>
-        window.onload = function () {
-     fetch("http://localhost:3001/getCars?codigo="+localStorage.getItem("codigo"), {
+    <script>
+                    function gavetas(codigo) {
+             fetch("http://192.168.10.150:3001/getGavetas?codigo=" + codigo, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
                 },
-            }).then(r => r.json()).then(r=>{
-                if(r.status == 200){
+            }).then(r => r.json()).then(r => {
+                if (r.status == 200) {
                     let val = r.valores
                     console.log(val)
-                    val.map((iten)=>{
-                        document.getElementsByClassName("container")[0].innerHTML += `
-                        <div class="card">
-            <div class="card-title">${iten[1]}</div>
-        </div>
-                        `
+                    val.map((iten) => {
+                        if(iten[0] == codigo){
+                             localStorage.setItem("gavetas",JSON.stringify(val))
+                            window.location.href = "gavetas.html"
+                        }
                     })
                 }
             })
-};
+        }
+        window.onload = function () {
+
+            fetch("http://192.168.10.150:3001/getCars?codigo=" + localStorage.getItem("codigo"), {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+            }).then(r => r.json()).then(r => {
+                if (r.status == 200) {
+                    let val = r.valores
+                    console.log(val)
+                    val.map((iten) => {
+                        document.getElementsByClassName("container")[0].innerHTML += `
+                        <div onclick="gavetas('${iten[1]}')" class="card">
+                            <div class="card-title">${iten[1]}</div>
+                        </div>
+                        `})
+                }
+            })
+
+            
+        };
+        
     </script>
 
     <h1>CARRINHOS</h1>
 
     <div class="container">
-            <!-- <div class="card">
+        <!-- <div class="card">
                 <div class="card-title">Carrinho 1</div>
                 <div class="card-info">4 GAVETAS<br>100 PEÇAS</div>
             </div>
@@ -114,4 +137,5 @@
     </div>
 
 </body>
+
 </html>

@@ -73,6 +73,26 @@ app.get("/getCars", async (req, res) => {
   res.send({status:"200",valores});
 });
 
+app.get("/getGavetas", async (req, res) => {
+  const { googleSheets, auth, spreadsheetId } = await getAuthSheets();
+  const  {codigo} = req.query
+  const getRows = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "car_gav",
+    valueRenderOption: "UNFORMATTED_VALUE",
+    dateTimeRenderOption: "FORMATTED_STRING",
+  });
+    let valores = getRows.data.values
+
+    valores =  valores.filter((iten,key)=>{
+        if(iten[0] == codigo){
+            return iten
+        }
+    })
+  res.send({status:"200",valores});
+});
+
 app.get("/metadata", async (req, res) => {
   const { googleSheets, auth, spreadsheetId } = await getAuthSheets();
 

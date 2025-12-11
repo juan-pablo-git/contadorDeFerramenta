@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carrinho</title>
+
+<style>
+    body {
+        margin: 0;
+        background: #ffffff;
+        font-family: Arial, sans-serif;
+        overflow: hidden; /* impede a página de rolar */
+    }
+
+    /* MENU FIXO */
+    .menu {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+        background: #222;
+        display: flex;
+        gap: 10px;
+        z-index: 99;
+    }
+
+    .menu button {
+        padding: 12px 20px;
+        font-size: 18px;
+        border: none;
+        cursor: pointer;
+        color: white;
+        border-radius: 8px;
+    }
+
+    #toggleDraw {
+        background: #ff0000;
+    }
+
+    #eraseBtn {
+        background: #ffaa00;
+    }
+
+    /* ÁREA QUE ROLA */
+    #wrapper {
+        position: absolute;
+        top: 70px; /* altura do menu */
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: auto;  /* permite mover o canvas */
+        background: #eaeaea;
+        width: auto ;
+        height: auto;
+    }
+
+    canvas {
+        display: block;
+        margin: 0 auto;
+    }
+</style>
+
+</head>
+<body>
+
+    <!-- MENU FIXO -->
+    <div class="menu">
+        <button id="toggleDraw">✏️ Desenhar</button>
+        <button id="eraseBtn">🧽 Borracha</button>
+    </div>
+
+    <!-- CONTAINER ROLÁVEL -->
+    <div id="wrapper">
+        <canvas id="canvas"></canvas>
+    </div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const btn = document.getElementById("toggleDraw");
+const eraseBtn = document.getElementById("eraseBtn");
+
+let drawingEnabled = false;
+let drawing = false;
+let erasing = false;
+
+// ---- Alternar desenho ----
+btn.onclick = () => {
+    drawingEnabled = !drawingEnabled;
+
+    if (drawingEnabled) {
+        erasing = false;
+        eraseBtn.textContent = "🧽 Borracha";
+    }
+
+    btn.textContent = drawingEnabled ? "🖐️ Mover Tela" : "✏️ Desenhar";
+    canvas.style.border = drawingEnabled ? "3px solid red" : "1px solid #ccc";
+};
+
+// ---- Alternar borracha ----
+eraseBtn.onclick = () => {
+    erasing = !erasing;
+
+    if (erasing) {
+        drawingEnabled = true;
+        btn.textContent = "🖐️ Mover Tela";
+        eraseBtn.textContent = "🖌️ Voltar ao Lápis";
+    } else {
+        eraseBtn.textContent = "🧽 Borracha";
+    }
+};
+
+// ---- Carregar imagem ----
+const img = new Image();
+img.src = "http://192.168.10.150/www/scripts/contadorDeFerramenta/imagens/gaveta%201%20b3n.jpg";
+
+img.onload = function() {
+    canvas.width = img.width;
+    canvas.height = img.height;
+    ctx.drawImage(img, 0, 0);
+};
+
+// ---- Coordenadas corretas ----
+function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.clientY - rect.top) * (canvas.height / rect.height)
+    };
+}
+
+// ---- Eventos de desenho ----
+canvas.addEventListener("pointerdown", (e) => {
+    if (!drawingEnabled) return;
+
+    drawing = true;
+    const p = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+});
+
+canvas.addEventListener("pointermove", (e) => {
+    if (!drawingEnabled || !drawing) return;
+
+    const p = getPos(e);
+
+    ctx.lineWidth = erasing ? 30 : 5;
+    ctx.lineCap = "round";
+
+    if (erasing) {
+        ctx.globalCompositeOperation = "destination-out"; 
+    } else {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.strokeStyle = "red";
+    }
+
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+});
+
+canvas.addEventListener("pointerup", () => drawing = false);
+canvas.addEventListener("pointerleave", () => drawing = false);
+
+// Impedir scroll enquanto desenha
+canvas.addEventListener("touchmove", (e) => {
+    if (drawingEnabled) e.preventDefault();
+}, { passive: false });
+
+</script>
+</body>
+</html>
