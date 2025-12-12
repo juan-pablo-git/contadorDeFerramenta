@@ -52,6 +52,8 @@
         bottom: 0;
         overflow: auto;  /* permite mover o canvas */
         background: #eaeaea;
+        width: auto ;
+        height: auto;
     }
 
     canvas {
@@ -72,7 +74,11 @@
     <!-- CONTAINER ROLÁVEL -->
     <div id="wrapper">
         <canvas id="canvas"></canvas>
+        <div style="margin: 200px;">
+        <H1>Declaro que recebi todos os equipamentos. Exceto os que estao marcados</p>
     </div>
+    </div>
+    
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -113,7 +119,7 @@ eraseBtn.onclick = () => {
 
 // ---- Carregar imagem ----
 const img = new Image();
-img.src = "http://192.168.18.8/www/scripts/contadorDeFerramenta/imagens/gaveta%201%20b3n.jpg";
+img.src = "http://192.168.18.8/ContadorDeFerramentas/imagens/gaveta%201%20b3n.jpg";
 
 img.onload = function() {
     canvas.width = img.width;
