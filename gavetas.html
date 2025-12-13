@@ -47,7 +47,8 @@
 
         /* Container dos canvas */
         #listaCanvas {
-            margin-top: 70px; /* abaixo do menu fixo */
+            margin-top: 70px;
+            /* abaixo do menu fixo */
             padding-bottom: 40px;
         }
 
@@ -72,14 +73,16 @@
     <div class="menu">
         <button id="toggleDraw">✏️ Desenhar</button>
         <button id="eraseBtn">🧽 Borracha</button>
+        <button id="undoBtn">↩️ Desfazer</button>
     </div>
 
     <!-- ONDE OS CANVAS SERÃO CRIADOS -->
     <div id="listaCanvas"></div>
     <div>
-        Eu,_______________________________ confirmo que todos os itens estao nos seus devidos lugares com excessao dos itens marcados.
+        Eu,_______________________________ confirmo que todos os itens estao nos seus devidos lugares com excessao dos
+        itens marcados.
     </div>
-     <div>
+    <div>
         Ass:________________________________
         <br>
         Data:____/____/____
@@ -92,9 +95,25 @@
 
         const btn = document.getElementById("toggleDraw");
         const eraseBtn = document.getElementById("eraseBtn");
+        const undoBtn = document.getElementById("undoBtn");
+        undoBtn.onclick = () => {
+    if (!canvasAtual) return;
+
+    if (canvasAtual.historyIndex > 0) {
+        canvasAtual.historyIndex--;
+        const ctx = canvasAtual.getContext("2d");
+        ctx.putImageData(
+            canvasAtual.history[canvasAtual.historyIndex],
+            0,
+            0
+        );
+    }
+};
 
         let drawingEnabled = false;
         let erasing = false;
+        let restore_array = []
+        let index = -1
 
         // Alternar desenho
         btn.onclick = () => {
@@ -141,6 +160,11 @@
             desenhando = true;
             canvasAtual = e.target;
             const ctx = canvasAtual.getContext("2d");
+            canvasAtual.history = canvasAtual.history.slice(0, canvasAtual.historyIndex + 1);
+            canvasAtual.history.push(
+                ctx.getImageData(0, 0, canvasAtual.width, canvasAtual.height)
+            );
+            canvasAtual.historyIndex++;
 
             const p = getPosCanvas(canvasAtual, e);
 
@@ -166,6 +190,13 @@
 
         function stopDraw() {
             desenhando = false;
+            if(canvasAtual){
+                const ctx = canvasAtual.getContext("2d");
+                ctx.globalCompositeOperation = "source-over";
+            }
+            //restore_array.push(canvasAtual.getImageData(0, 0, canvasAtual.width, canvasAtual.height))
+            //index += 1
+
         }
 
 
@@ -178,6 +209,8 @@
             img.onload = () => {
                 // Cria canvas
                 const cv = document.createElement("canvas");
+                cv.history = []
+                cv.historyIndex = -1;
                 const ctx = cv.getContext("2d");
 
                 // Tamanho real da imagem
@@ -186,6 +219,8 @@
 
                 // Desenha imagem em alta qualidade
                 ctx.drawImage(img, 0, 0);
+                cv.history.push(ctx.getImageData(0, 0, cv.width, cv.height));
+                cv.historyIndex += 1;
 
                 // Insere na página
                 listaCanvas.appendChild(cv);
@@ -203,7 +238,7 @@
             };
         });
 
-        document.getElementById("salvar").addEventListener("click",()=>{
+        document.getElementById("salvar").addEventListener("click", () => {
             window.print()
         })
     </script>

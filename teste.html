@@ -1,150 +1,170 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Sheets API Quickstart</title>
-    <meta charset="utf-8" />
-  </head>
-  <body>
-    <p>Sheets API Quickstart</p>
+<html lang="en">
 
-    <!--Add buttons to initiate auth sequence and sign out-->
-    <button id="authorize_button" onclick="handleAuthClick()">Authorize</button>
-    <button id="signout_button" onclick="handleSignoutClick()">Sign Out</button>
-
-    <pre id="content" style="white-space: pre-wrap;"></pre>
-
-    <script type="text/javascript">
-      /* exported gapiLoaded */
-      /* exported gisLoaded */
-      /* exported handleAuthClick */
-      /* exported handleSignoutClick */
-
-      // TODO(developer): Set to client ID and API key from the Developer Console
-      const CLIENT_ID = '<YOUR_CLIENT_ID>';
-      const API_KEY = '<YOUR_API_KEY>';
-
-      // Discovery doc URL for APIs used by the quickstart
-      const DISCOVERY_DOC = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
-
-      // Authorization scopes required by the API; multiple scopes can be
-      // included, separated by spaces.
-      const SCOPES = 'https://www.googleapis.com/auth/spreadsheets.readonly';
-
-      let tokenClient;
-      let gapiInited = false;
-      let gisInited = false;
-
-      document.getElementById('authorize_button').style.visibility = 'hidden';
-      document.getElementById('signout_button').style.visibility = 'hidden';
-
-      /**
-       * Callback after api.js is loaded.
-       */
-      function gapiLoaded() {
-        gapi.load('client', initializeGapiClient);
-      }
-
-      /**
-       * Callback after the API client is loaded. Loads the
-       * discovery doc to initialize the API.
-       */
-      async function initializeGapiClient() {
-        await gapi.client.init({
-          apiKey: API_KEY,
-          discoveryDocs: [DISCOVERY_DOC],
-        });
-        gapiInited = true;
-        maybeEnableButtons();
-      }
-
-      /**
-       * Callback after Google Identity Services are loaded.
-       */
-      function gisLoaded() {
-        tokenClient = google.accounts.oauth2.initTokenClient({
-          client_id: CLIENT_ID,
-          scope: SCOPES,
-          callback: '', // defined later
-        });
-        gisInited = true;
-        maybeEnableButtons();
-      }
-
-      /**
-       * Enables user interaction after all libraries are loaded.
-       */
-      function maybeEnableButtons() {
-        if (gapiInited && gisInited) {
-          document.getElementById('authorize_button').style.visibility = 'visible';
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #313131;
         }
-      }
 
-      /**
-       *  Sign in the user upon button click.
-       */
-      function handleAuthClick() {
-        tokenClient.callback = async (resp) => {
-          if (resp.error !== undefined) {
-            throw (resp);
-          }
-          document.getElementById('signout_button').style.visibility = 'visible';
-          document.getElementById('authorize_button').innerText = 'Refresh';
-          await listMajors();
-        };
+        canvas {
+            box-shadow: -3px 2px 9px 6px black;
+            cursor: pointer;
+        }
 
-        if (gapi.client.getToken() === null) {
-          // Prompt the user to select a Google Account and ask for consent to share their data
-          // when establishing a new session.
-          tokenClient.requestAccessToken({prompt: 'consent'});
-        } else {
-          // Skip display of account chooser and consent dialog for an existing session.
-          tokenClient.requestAccessToken({prompt: ''});
-        }
-      }
+        .tools {
+            display: flex;
+            justify-content: center;
+            flex-direction: row;
+            margin-top: 15px;
 
-      /**
-       *  Sign out the user upon button click.
-       */
-      function handleSignoutClick() {
-        const token = gapi.client.getToken();
-        if (token !== null) {
-          google.accounts.oauth2.revoke(token.access_token);
-          gapi.client.setToken('');
-          document.getElementById('content').innerText = '';
-          document.getElementById('authorize_button').innerText = 'Authorize';
-          document.getElementById('signout_button').style.visibility = 'hidden';
         }
-      }
 
-      /**
-       * Print the names and majors of students in a sample spreadsheet:
-       * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-       */
-      async function listMajors() {
-        let response;
-        try {
-          // Fetch first 10 files
-          response = await gapi.client.sheets.spreadsheets.values.get({
-            spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
-            range: 'Class Data!A2:E',
-          });
-        } catch (err) {
-          document.getElementById('content').innerText = err.message;
-          return;
+        .tools .color-field {
+            height: 40px;
+            width: 40px;
+            min-height: 40px;
+            min-width: 40px;
+            cursor: pointer;
+            display: inline-block;
+            box-sizing: border-box;
+            border-radius: 50%;
+            border: 2px solid white;
+            margin: 0 10px;
+
         }
-        const range = response.result;
-        if (!range || !range.values || range.values.length == 0) {
-          document.getElementById('content').innerText = 'No values found.';
-          return;
+
+        .tools .button {
+            align-self: center;
+            width: 100px;
+            height: 40px;
+            border: 2px solid white;
+            cursor: pointer;
+            color: white;
+            background: #222;
+            font-weight: bold;
+            margin: 0 10px;
         }
-        // Flatten to string to display
-        const output = range.values.reduce(
-            (str, row) => `${str}${row[0]}, ${row[4]}\n`,
-            'Name, Major:\n');
-        document.getElementById('content').innerText = output;
-      }
+
+        .color-picker {
+            align-self: center;
+            margin: 0 10px;
+            height: 50px;
+        }
+
+        .pen-range {
+            align-self: center;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="field">
+        <canvas id="canvas"></canvas>
+        <div class="tools">
+            <button type="button" onclick="clear_canvas()" class="button"> Clear</button>
+            <button type="button" onclick="undo_last()" class="button"> Undo</button>
+            <div onclick="change_color(this)" class="color-field" style="background: red;"></div>
+            <div onclick="change_color(this)" class="color-field" style="background: blue;"></div>
+            <div onclick="change_color(this)" class="color-field" style="background: green;"></div>
+            <div onclick="change_color(this)" class="color-field" style="background: yellow;"></div>
+
+            <input onInput="draw_color = document.getElementsByClassName('color-picker')[0].value " type="color"
+                class="color-picker">
+            <input type="range" min="1" max="100" class="pen-range" onInput="dra_width = this.value">
+        </div>
+    </div>
+    </div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        canvas.width = window.innerWidth - 60;
+        canvas.height = 400;
+
+        let start_background_color = "white"
+        let context = canvas.getContext('2d');
+        context.fillStyle = start_background_color;
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        let draw_color = 'black';
+        let dra_width = "2";
+        let is_drawing = false;
+        let restore_array = []
+        let index = -1;
+
+        function change_color(element) {
+            draw_color = element.style.background;
+        }
+
+
+        canvas.addEventListener("touchstart", start, false);
+        canvas.addEventListener("touchmove", draw, false);
+        canvas.addEventListener("mousedown", start, false);
+        canvas.addEventListener("mousemove", draw, false);
+        canvas.addEventListener("touchend", stop, false);
+        canvas.addEventListener("mouseup", stop, false);
+        canvas.addEventListener("mouseout", stop, false);
+
+        function start(event) {
+            is_drawing = true;
+            context.beginPath();
+            context.moveTo(event.clientX - canvas.offsetLeft,
+                event.clientY - canvas.offsetTop);
+            event.preventDefault();
+        }
+
+        function draw(event) {
+            if (is_drawing) {
+                context.lineTo(event.clientX - canvas.offsetLeft,
+                    event.clientY - canvas.offsetTop);
+                context.strokeStyle = draw_color;
+                context.lineWidth = dra_width;
+                context.lineCap = "round";
+                context.lineJoin = "round";
+                context.stroke();
+            }
+            event.preventDefault();
+        }
+
+        function stop(event) {
+            if (is_drawing) {
+                context.stroke();
+                context.closePath();
+                is_drawing = false;
+            }
+            event.preventDefault();
+
+            if(event.type != 'mouseout'){
+
+                restore_array.push(context.getImageData(0,0,canvas.width,canvas.height))
+                index += 1  
+            }
+
+        }
+
+        function clear_canvas() {
+            context.fillStyle = start_background_color
+           context.clearRect(0,0,canvas.width,canvas.height) 
+            context.fillRect(0,0,canvas.width,canvas.height)
+            restore_array = []
+            index = -1 
+        }
+        function undo_last(){
+            if(index <= 0){
+                clear_canvas()
+            }else{
+                index -=1
+                restore_array.pop()
+                context.putImageData(restore_array[index],0,0)
+            }
+        }
     </script>
-    <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoaded()"></script>
-    <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoaded()"></script>
-  </body>
+</body>
+
 </html>
