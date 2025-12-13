@@ -1,170 +1,315 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Carrinho</title>
+
     <style>
         body {
             margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #313131;
+            background: #ffffff;
+            font-family: Arial, sans-serif;
+            /* Scroll liberado */
+            overflow-x: hidden;
+        }
+
+        /* MENU FIXO */
+        .menu {
+            position: absolute;
+            width: 100%;
+            padding: 10px;
+            background: #222;
+            display: flex;
+            gap: 10px;
+            z-index: 9999;
+        }
+
+        .menu button {
+            padding: 12px 20px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            color: white;
+            border-radius: 8px;
+        }
+
+        #toggleDraw {
+            background: #ff0000;
+        }
+
+        #eraseBtn {
+            background: #ffaa00;
+        }
+
+        /* Container dos canvas */
+        #listaCanvas {
+            margin-top: 70px;
+            /* abaixo do menu fixo */
+            padding-bottom: 40px;
         }
 
         canvas {
-            box-shadow: -3px 2px 9px 6px black;
-            cursor: pointer;
+            display: block;
+            width: 100%;
+            height: auto;
+            margin-bottom: 40px;
+            background: transparent;
         }
 
-        .tools {
-            display: flex;
-            justify-content: center;
-            flex-direction: row;
-            margin-top: 15px;
+        .btn-salvar {
 
-        }
 
-        .tools .color-field {
-            height: 40px;
-            width: 40px;
-            min-height: 40px;
-            min-width: 40px;
-            cursor: pointer;
-            display: inline-block;
-            box-sizing: border-box;
-            border-radius: 50%;
-            border: 2px solid white;
-            margin: 0 10px;
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: #fff;
 
-        }
+            border: none;
+            border-radius: 50px;
 
-        .tools .button {
-            align-self: center;
-            width: 100px;
-            height: 40px;
-            border: 2px solid white;
-            cursor: pointer;
-            color: white;
-            background: #222;
+            padding: 14px 22px;
+            font-size: 16px;
             font-weight: bold;
-            margin: 0 10px;
+
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+
         }
 
-        .color-picker {
-            align-self: center;
-            margin: 0 10px;
-            height: 50px;
+        .btn-salvar:active {
+            transform: scale(0.95);
         }
 
-        .pen-range {
-            align-self: center;
-            margin: 0 10px;
+        @media print {
+            .btn-salvar {
+                display: none;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="field">
-        <canvas id="canvas"></canvas>
-        <div class="tools">
-            <button type="button" onclick="clear_canvas()" class="button"> Clear</button>
-            <button type="button" onclick="undo_last()" class="button"> Undo</button>
-            <div onclick="change_color(this)" class="color-field" style="background: red;"></div>
-            <div onclick="change_color(this)" class="color-field" style="background: blue;"></div>
-            <div onclick="change_color(this)" class="color-field" style="background: green;"></div>
-            <div onclick="change_color(this)" class="color-field" style="background: yellow;"></div>
 
-            <input onInput="draw_color = document.getElementsByClassName('color-picker')[0].value " type="color"
-                class="color-picker">
-            <input type="range" min="1" max="100" class="pen-range" onInput="dra_width = this.value">
-        </div>
-    </div>
-    </div>
     <script>
-        const canvas = document.getElementById('canvas');
-        canvas.width = window.innerWidth - 60;
-        canvas.height = 400;
-
-        let start_background_color = "white"
-        let context = canvas.getContext('2d');
-        context.fillStyle = start_background_color;
-        context.fillRect(0, 0, canvas.width, canvas.height);
-
-        let draw_color = 'black';
-        let dra_width = "2";
-        let is_drawing = false;
-        let restore_array = []
-        let index = -1;
-
-        function change_color(element) {
-            draw_color = element.style.background;
-        }
-
-
-        canvas.addEventListener("touchstart", start, false);
-        canvas.addEventListener("touchmove", draw, false);
-        canvas.addEventListener("mousedown", start, false);
-        canvas.addEventListener("mousemove", draw, false);
-        canvas.addEventListener("touchend", stop, false);
-        canvas.addEventListener("mouseup", stop, false);
-        canvas.addEventListener("mouseout", stop, false);
-
-        function start(event) {
-            is_drawing = true;
-            context.beginPath();
-            context.moveTo(event.clientX - canvas.offsetLeft,
-                event.clientY - canvas.offsetTop);
-            event.preventDefault();
-        }
-
-        function draw(event) {
-            if (is_drawing) {
-                context.lineTo(event.clientX - canvas.offsetLeft,
-                    event.clientY - canvas.offsetTop);
-                context.strokeStyle = draw_color;
-                context.lineWidth = dra_width;
-                context.lineCap = "round";
-                context.lineJoin = "round";
-                context.stroke();
-            }
-            event.preventDefault();
-        }
-
-        function stop(event) {
-            if (is_drawing) {
-                context.stroke();
-                context.closePath();
-                is_drawing = false;
-            }
-            event.preventDefault();
-
-            if(event.type != 'mouseout'){
-
-                restore_array.push(context.getImageData(0,0,canvas.width,canvas.height))
-                index += 1  
-            }
-
-        }
-
-        function clear_canvas() {
-            context.fillStyle = start_background_color
-           context.clearRect(0,0,canvas.width,canvas.height) 
-            context.fillRect(0,0,canvas.width,canvas.height)
-            restore_array = []
-            index = -1 
-        }
-        function undo_last(){
-            if(index <= 0){
-                clear_canvas()
-            }else{
-                index -=1
-                restore_array.pop()
-                context.putImageData(restore_array[index],0,0)
-            }
-        }
+        // Pega as imagens do localStorage
+        var gavetas = JSON.parse(localStorage.getItem("gavetas")) || [];
     </script>
+
+    <!-- MENU FIXO -->
+    <div class="menu">
+        <button id="toggleDraw">✏️</button>
+        <button style="display: none;" id="eraseBtn">🧽 Borracha</button>
+        <button id="undoBtn">↩️</button>
+        <button id="salvar" class="btn-salvar">
+            📄 Salvar PDF
+        </button>
+    </div>
+
+
+    <!-- ONDE OS CANVAS SERÃO CRIADOS -->
+    <div id="listaCanvas"></div>
+    <div>
+        Eu,_______________________________ confirmo que todos os itens estao nos seus devidos lugares com excessao dos
+        itens marcados.
+    </div>
+    <div>
+        Ass:________________________________
+        <br>
+        Data:____/____/____
+    </div>
+
+
+
+    <script>
+        const listaCanvas = document.getElementById("listaCanvas");
+
+
+        const btn = document.getElementById("toggleDraw");
+        const eraseBtn = document.getElementById("eraseBtn");
+        const undoBtn = document.getElementById("undoBtn");
+
+
+
+        undoBtn.onclick = () => {
+            if (!canvasAtual) return;
+
+            if (canvasAtual.historyIndex > 0) {
+                canvasAtual.historyIndex--;
+                const ctx = canvasAtual.getContext("2d");
+                ctx.putImageData(
+                    canvasAtual.history[canvasAtual.historyIndex],
+                    0,
+                    0
+                );
+            }
+        };
+
+        let drawingEnabled = false;
+        let erasing = false;
+        let restore_array = []
+        let index = -1
+
+        // Alternar desenho
+        btn.onclick = () => {
+            drawingEnabled = !drawingEnabled;
+
+            if (drawingEnabled) {
+                erasing = false;
+                eraseBtn.textContent = "🧽 Borracha";
+            }
+
+            btn.textContent = drawingEnabled ? "🖐️" : "✏️";
+        };
+
+        // Alternar borracha
+        eraseBtn.onclick = () => {
+            erasing = !erasing;
+
+            if (erasing) {
+                drawingEnabled = true;
+                btn.textContent = "🖐️";
+                eraseBtn.textContent = "🖌️";
+            } else {
+                eraseBtn.textContent = "🧽";
+            }
+        };
+
+
+        // ===== FUNÇÕES DE DESENHO UNIVERSAIS =====
+
+        let desenhando = false;
+        let canvasAtual = null;
+
+        function getPosCanvas(canvas, e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (e.clientX - rect.left) * (canvas.width / rect.width),
+                y: (e.clientY - rect.top) * (canvas.height / rect.height)
+            };
+        }
+
+        function startDraw(e) {
+            if (!drawingEnabled) return;
+
+            desenhando = true;
+            canvasAtual = e.target;
+            const ctx = canvasAtual.getContext("2d");
+            canvasAtual.history = canvasAtual.history.slice(0, canvasAtual.historyIndex + 1);
+            canvasAtual.history.push(
+                ctx.getImageData(0, 0, canvasAtual.width, canvasAtual.height)
+            );
+            canvasAtual.historyIndex++;
+
+            const p = getPosCanvas(canvasAtual, e);
+
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+        }
+
+        function drawMove(e) {
+            if (!drawingEnabled || !desenhando) return;
+
+            const ctx = canvasAtual.getContext("2d");
+            const p = getPosCanvas(canvasAtual, e);
+
+            ctx.lineWidth = erasing ? 30 : 5;
+            ctx.lineCap = "round";
+
+            ctx.globalCompositeOperation = erasing ? "destination-out" : "source-over";
+            if (!erasing) ctx.strokeStyle = "red";
+
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+        }
+
+        function stopDraw() {
+            desenhando = false;
+            if (canvasAtual) {
+                const ctx = canvasAtual.getContext("2d");
+                ctx.globalCompositeOperation = "source-over";
+            }
+            //restore_array.push(canvasAtual.getImageData(0, 0, canvasAtual.width, canvasAtual.height))
+            //index += 1
+
+        }
+
+
+        // ===== CARREGAR IMAGENS E CRIAR UM CANVAS PARA CADA =====
+
+        gavetas.forEach((iten) => {
+            const img = new Image();
+            img.src = "http://192.168.18.8/ContadorDeFerramentas/imagens/" + iten[1];
+
+            img.onload = () => {
+                // Cria canvas
+                const cv = document.createElement("canvas");
+                cv.history = []
+                cv.historyIndex = -1;
+                const ctx = cv.getContext("2d");
+
+                // Tamanho real da imagem
+                cv.width = img.width;
+                cv.height = img.height;
+
+                // Desenha imagem em alta qualidade
+                ctx.drawImage(img, 0, 0);
+                cv.history.push(ctx.getImageData(0, 0, cv.width, cv.height));
+                cv.historyIndex += 1;
+
+                // Insere na página
+                listaCanvas.appendChild(cv);
+
+                // Eventos de desenho
+                cv.addEventListener("pointerdown", startDraw);
+                cv.addEventListener("pointermove", drawMove);
+                cv.addEventListener("pointerup", stopDraw);
+                cv.addEventListener("pointerleave", stopDraw);
+
+                // Bloquear scroll quando desenhar no celular
+                cv.addEventListener("touchmove", (e) => {
+                    if (drawingEnabled) e.preventDefault();
+                }, { passive: false });
+            };
+        });
+
+        document.getElementById("salvar").addEventListener("click", () => {
+            window.print()
+        })
+
+        let tentandoZoom = false;
+        let pinchInicial = null;
+        document.addEventListener("touchmove", (e) => {
+            //console.log(e.changedTouches[0])
+            //if (e.touches.length === 2) {
+            tentandoZoom = true;
+            //if (!drawingEnabled) {
+              //  document.getElementsByClassName("menu")[0].style.top = `${e.touches[0].screenY}px`
+                //document.getElementsByClassName("menu")[0].style.left = `${e.touches[0].screenX}px`
+            //}
+            // }
+        })
+        document.addEventListener("touchstart", (e) => {
+            if (e.touches.length === 1) {
+                if (!drawingEnabled) {
+
+                     document.getElementsByClassName("menu")[0].style.top = `${e.touches[0].screenY}px` 
+                     document.getElementsByClassName("menu")[0].style.left = `${e.touches[0].screenX}px`
+                }
+                tentandoZoom = true;
+            }
+        }, { passive: true });
+
+        document.addEventListener("touchend", (e) => {
+            if (e.touches.length < 2) {
+                tentandoZoom = false;
+            }
+        });
+    </script>
+
 </body>
 
 </html>

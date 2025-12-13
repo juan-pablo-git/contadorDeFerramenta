@@ -59,6 +59,38 @@
             margin-bottom: 40px;
             background: transparent;
         }
+
+        .btn-salvar {
+
+
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+            color: #fff;
+
+            border: none;
+            border-radius: 50px;
+
+            padding: 14px 22px;
+            font-size: 16px;
+            font-weight: bold;
+
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+
+        }
+
+        .btn-salvar:active {
+            transform: scale(0.95);
+        }
+
+        @media print {
+            .btn-salvar {
+                display: none;
+            }
+        }
     </style>
 </head>
 
@@ -71,9 +103,15 @@
 
     <!-- MENU FIXO -->
     <div class="menu">
-        <button id="toggleDraw">✏️ Desenhar</button>
-        <button id="eraseBtn">🧽 Borracha</button>
-        <button id="undoBtn">↩️ Desfazer</button>
+        <button id="toggleDraw">✏️</button>
+        <button style="display: none;" id="eraseBtn">🧽 Borracha</button>
+        <button id="undoBtn">↩️</button>
+        <button id="salvar" class="btn-salvar">
+            📄 Salvar PDF
+        </button>
+    </div>
+    <div id="teste">
+        TESTE
     </div>
 
     <!-- ONDE OS CANVAS SERÃO CRIADOS -->
@@ -87,28 +125,49 @@
         <br>
         Data:____/____/____
     </div>
-    <button id="salvar" type="button">Salvar PDF</button>
+
 
 
     <script>
         const listaCanvas = document.getElementById("listaCanvas");
+        const teste = document.getElementById("teste");
+
 
         const btn = document.getElementById("toggleDraw");
         const eraseBtn = document.getElementById("eraseBtn");
         const undoBtn = document.getElementById("undoBtn");
-        undoBtn.onclick = () => {
-    if (!canvasAtual) return;
 
-    if (canvasAtual.historyIndex > 0) {
-        canvasAtual.historyIndex--;
-        const ctx = canvasAtual.getContext("2d");
-        ctx.putImageData(
-            canvasAtual.history[canvasAtual.historyIndex],
-            0,
-            0
-        );
-    }
-};
+        let tentandoZoom = false;
+        let pinchInicial = null;
+
+        document.addEventListener("touchstart", (e) => {
+            console.log(e.touches[0])
+            if (e.touches.length === 2) {
+                tentandoZoom = true;
+                //alert("📱 Usuário tentou dar ZOOM");
+                console.log(e)
+            }
+        }, { passive: true });
+
+        document.addEventListener("touchend", (e) => {
+            if (e.touches.length < 2) {
+                tentandoZoom = false;
+            }
+        });
+
+        undoBtn.onclick = () => {
+            if (!canvasAtual) return;
+
+            if (canvasAtual.historyIndex > 0) {
+                canvasAtual.historyIndex--;
+                const ctx = canvasAtual.getContext("2d");
+                ctx.putImageData(
+                    canvasAtual.history[canvasAtual.historyIndex],
+                    0,
+                    0
+                );
+            }
+        };
 
         let drawingEnabled = false;
         let erasing = false;
@@ -124,7 +183,7 @@
                 eraseBtn.textContent = "🧽 Borracha";
             }
 
-            btn.textContent = drawingEnabled ? "🖐️ Mover Tela" : "✏️ Desenhar";
+            btn.textContent = drawingEnabled ? "🖐️" : "✏️";
         };
 
         // Alternar borracha
@@ -133,10 +192,10 @@
 
             if (erasing) {
                 drawingEnabled = true;
-                btn.textContent = "🖐️ Mover Tela";
-                eraseBtn.textContent = "🖌️ Voltar ao Lápis";
+                btn.textContent = "🖐️";
+                eraseBtn.textContent = "🖌️";
             } else {
-                eraseBtn.textContent = "🧽 Borracha";
+                eraseBtn.textContent = "🧽";
             }
         };
 
@@ -190,7 +249,7 @@
 
         function stopDraw() {
             desenhando = false;
-            if(canvasAtual){
+            if (canvasAtual) {
                 const ctx = canvasAtual.getContext("2d");
                 ctx.globalCompositeOperation = "source-over";
             }
