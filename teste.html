@@ -194,7 +194,7 @@
 
         function startDraw(e) {
             if (!drawingEnabled) return;
-
+            console.log(e)
             desenhando = true;
             canvasAtual = e.target;
             const ctx = canvasAtual.getContext("2d");
@@ -242,7 +242,7 @@
 
         gavetas.forEach((iten) => {
             const img = new Image();
-            img.src = "http://192.168.18.8/ContadorDeFerramentas/imagens/" + iten[1];
+            img.src = `${window.location.origin}/contadorDeFerramenta/imagens/` + "hq720.jpg";
 
             img.onload = () => {
                 // Cria canvas
@@ -268,10 +268,46 @@
                 cv.addEventListener("pointermove", drawMove);
                 cv.addEventListener("pointerup", stopDraw);
                 cv.addEventListener("pointerleave", stopDraw);
+                cv.addEventListener("pointercancel", stopDraw);
 
                 // Bloquear scroll quando desenhar no celular
                 cv.addEventListener("touchmove", (e) => {
-                    if (drawingEnabled) e.preventDefault();
+                    if (e.touches.length > 1) {
+                        drawingEnabled = false;
+                        desenhando = false;
+                        return;
+                    }
+                    if (drawingEnabled) {
+
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                cv.addEventListener("touchstart", (e) => {
+                    if (e.touches.length > 1) {
+                        drawingEnabled = false;
+                        desenhando = false;
+                        return;
+                    }
+                    if (drawingEnabled) {
+
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                cv.addEventListener("touchend", (e) => {
+                    if (e.touches.length > 1) {
+                        if (drawingEnabled) {
+                            
+                            drawingEnabled = true;
+                            return;
+                        }else{
+                            drawingEnabled = true;
+                            return;
+                        }
+                    }
+                    // if (drawingEnabled) {
+
+                    //     e.preventDefault();
+                    // }
                 }, { passive: false });
             };
         });
@@ -282,32 +318,32 @@
 
         let tentandoZoom = false;
         let pinchInicial = null;
-        document.addEventListener("touchmove", (e) => {
-            //console.log(e.changedTouches[0])
-            //if (e.touches.length === 2) {
-            tentandoZoom = true;
-            //if (!drawingEnabled) {
-              //  document.getElementsByClassName("menu")[0].style.top = `${e.touches[0].screenY}px`
-                //document.getElementsByClassName("menu")[0].style.left = `${e.touches[0].screenX}px`
-            //}
-            // }
-        })
-        document.addEventListener("touchstart", (e) => {
-            if (e.touches.length === 1) {
-                if (!drawingEnabled) {
 
-                     document.getElementsByClassName("menu")[0].style.top = `${e.touches[0].screenY}px` 
-                     document.getElementsByClassName("menu")[0].style.left = `${e.touches[0].screenX}px`
-                }
-                tentandoZoom = true;
-            }
-        }, { passive: true });
+         // Bloquear scroll quando desenhar no celular
+                document.addEventListener("touchmove", (e) => {
+                    if (e.touches.length > 1) {
+                        drawingEnabled = false;
+                        desenhando = false;
+                        return;
+                    }
+                    if (drawingEnabled) {
 
-        document.addEventListener("touchend", (e) => {
-            if (e.touches.length < 2) {
-                tentandoZoom = false;
-            }
-        });
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+                document.addEventListener("touchstart", (e) => {
+                    if (e.touches.length > 1) {
+                        drawingEnabled = false;
+                        desenhando = false;
+                        return;
+                    }
+                    if (drawingEnabled) {
+
+                        e.preventDefault();
+                    }
+                }, { passive: false });
+              
+       
     </script>
 
 </body>

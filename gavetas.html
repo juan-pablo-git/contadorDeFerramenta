@@ -267,7 +267,7 @@
 
         gavetas.forEach((iten) => {
             const img = new Image();
-            img.src = "http://192.168.18.8/ContadorDeFerramentas/imagens/" + iten[1];
+            img.src = `${window.location.origin}/contadorDeFerramenta/imagens/` + iten[1];
 
             img.onload = () => {
                 // Cria canvas

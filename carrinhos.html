@@ -76,7 +76,7 @@
     <script>
         
                     function gavetas(codigo) {
-             fetch("http://192.168.18.8:3001/getGavetas?codigo=" + codigo, {
+             fetch(`${window.location.origin}:3001/getGavetas?codigo=` + codigo, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
@@ -96,7 +96,7 @@
         }
         window.onload = function () {
 
-            fetch("http://192.168.18.8:3001/getCars?codigo=" + localStorage.getItem("codigo"), {
+            fetch(`${window.location.origin}:3001/getCars?codigo=` + localStorage.getItem("codigo"), {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json"
