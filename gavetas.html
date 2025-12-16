@@ -17,15 +17,14 @@
 
         /* MENU FIXO */
         .menu {
-            position: fixed;
-            top: 0;
-            left: 0;
+            position: absolute;
             width: 100%;
             padding: 10px;
             background: #222;
             display: flex;
             gap: 10px;
-            z-index: 99;
+            z-index: 9999;
+            top: 0;
         }
 
         .menu button {
@@ -82,14 +81,12 @@
 
         }
 
-
-        
         .btn-salvar:active {
             transform: scale(0.95);
         }
 
         @media print {
-            .btn-salvar {
+            .menu {
                 display: none;
             }
         }
@@ -97,8 +94,6 @@
 </head>
 
 <body>
-
-
 
     <script>
         // Pega as imagens do localStorage
@@ -114,9 +109,7 @@
             📄 Salvar PDF
         </button>
     </div>
-    <div id="teste">
-        TESTE
-    </div>
+
 
     <!-- ONDE OS CANVAS SERÃO CRIADOS -->
     <div id="listaCanvas"></div>
@@ -134,30 +127,13 @@
 
     <script>
         const listaCanvas = document.getElementById("listaCanvas");
-        const teste = document.getElementById("teste");
 
 
         const btn = document.getElementById("toggleDraw");
         const eraseBtn = document.getElementById("eraseBtn");
         const undoBtn = document.getElementById("undoBtn");
 
-        let tentandoZoom = false;
-        let pinchInicial = null;
 
-        document.addEventListener("touchstart", (e) => {
-            console.log(e.touches[0])
-            if (e.touches.length === 2) {
-                tentandoZoom = true;
-                //alert("📱 Usuário tentou dar ZOOM");
-                console.log(e)
-            }
-        }, { passive: true });
-
-        document.addEventListener("touchend", (e) => {
-            if (e.touches.length < 2) {
-                tentandoZoom = false;
-            }
-        });
 
         undoBtn.onclick = () => {
             if (!canvasAtual) return;
@@ -219,7 +195,6 @@
 
         function startDraw(e) {
             if (!drawingEnabled) return;
-
             desenhando = true;
             canvasAtual = e.target;
             const ctx = canvasAtual.getContext("2d");
@@ -267,7 +242,7 @@
 
         gavetas.forEach((iten) => {
             const img = new Image();
-            img.src = `${window.location.origin}/contadorDeFerramenta/imagens/` + iten[1];
+            img.src = `${window.location.origin}/ContadorDeFerramentas/imagens/` + iten[1];
 
             img.onload = () => {
                 // Cria canvas
@@ -289,14 +264,52 @@
                 listaCanvas.appendChild(cv);
 
                 // Eventos de desenho
-                cv.addEventListener("pointerdown", startDraw);
-                cv.addEventListener("pointermove", drawMove);
-                cv.addEventListener("pointerup", stopDraw);
-                cv.addEventListener("pointerleave", stopDraw);
+                //cv.addEventListener("pointerdown", startDraw);
+                //cv.addEventListener("pointermove", drawMove);
+                //cv.addEventListener("pointerup", stopDraw);
+                //cv.addEventListener("pointerleave", stopDraw);
+                //cv.addEventListener("pointercancel", stopDraw);
 
                 // Bloquear scroll quando desenhar no celular
                 cv.addEventListener("touchmove", (e) => {
-                    if (drawingEnabled) e.preventDefault();
+                    if (e.changedTouches.length === 1) {
+                        drawMove(e.changedTouches[0])
+                        e.preventDefault();
+
+                    }
+                }, { passive: false });
+                cv.addEventListener("touchstart", (e) => {
+                    if (e.changedTouches.length === 1) {
+                        startDraw(e.changedTouches[0])
+                    }else{
+                        stopDraw()
+                        return;
+                    }
+                }, { passive: false });
+                cv.addEventListener("touchend", (e) => {
+                    if (e.changedTouches.length === 0) {
+                        startDraw(e.changedTouches[0])
+                    }else{
+                        stopDraw()
+                        return;
+                    }
+                    // if (drawingEnabled) {
+
+                    //     e.preventDefault();
+                    // }
+                }, { passive: false });
+                cv.addEventListener("touchcancel", (e) => {
+                    if (e.changedTouches.length === 0) {
+                        startDraw(e.changedTouches[0])
+                    }else{
+                        stopDraw()
+                        
+                        return;
+                    }
+                    // if (drawingEnabled) {
+
+                    //     e.preventDefault();
+                    // }
                 }, { passive: false });
             };
         });
@@ -304,8 +317,45 @@
         document.getElementById("salvar").addEventListener("click", () => {
             window.print()
         })
+
+        let tentandoZoom = false;
+        let pinchInicial = null;
+
+         // Bloquear scroll quando desenhar no celular
+                document.addEventListener("touchmove", (e) => {
+                    if (e.touches.length > 1) {
+                        drawingEnabled = false;
+                        desenhando = false;
+                        return;
+                    }
+                    if(e.touches.length === 1) {
+                        drawingEnabled = true;
+                        return;
+                    }
+                }, { passive: false });
+                document.addEventListener("touchstart", (e) => {
+                    if (e.touches.length > 1) {
+                        drawingEnabled = false;
+                        desenhando = false;
+                        return;
+                    }
+                    if (drawingEnabled) {
+                        drawingEnabled = true;
+                        return;
+                    }
+                }, { passive: false });
+                document.addEventListener("touchcancel", (e) => {
+                    if (e.touches.length === 0) {
+                        drawingEnabled = true;
+                        return;
+                    }
+                }, { passive: false });
+              
+       
     </script>
 
 </body>
+
+
 
 </html>

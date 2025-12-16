@@ -48,9 +48,14 @@ app.post("/login", async (req, res) => {
         return iten
     }
   })
+  if(valores.length == 0){
 
+    res.send({status:400,message:"Usuario não encontrado"});
+  }else{
+      res.send({status:200,valores});
 
-  res.send({status:200,valores:{...valores}});
+  }
+
 });
 
 app.get("/getCars", async (req, res) => {

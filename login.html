@@ -76,11 +76,13 @@
 
 
 
-    
+
     <input name="usuario" type="text" class="input" placeholder="usuário" />
     <input name="senha" type="password" class="input" placeholder="senha" />
 
     <button class="button">LOGIN</button>
+   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
         document.getElementsByClassName("button")[0].addEventListener('click', () => {
             fetch(`${window.location.origin}:3001/login`, {
@@ -92,16 +94,22 @@
                     usuario: document.getElementsByName("usuario")[0].value,
                     senha: document.getElementsByName("senha")[0].value
                 })
-            }).then(r => r.json()).then(r=>{
-                if(r.status == 200){
-                    console.log(r)
+            }).then(r => r.json()).then(r => {
+                if (r.status == 200) {
                     localStorage.clear("codigo")
-                    localStorage.setItem("codigo",r.valores[0][2])
+                    localStorage.setItem("codigo", r.valores[0][2])
                     location.href = "carrinhos.html"
+                } else {
+                        Swal.fire({
+  icon: "error",
+  title: "Usuário não encontrado",
+  text: "verifique sua senha ou nome de usuário",
+});
                 }
             })
         })
     </script>
+
 </body>
 
 </html>

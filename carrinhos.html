@@ -84,7 +84,6 @@
             }).then(r => r.json()).then(r => {
                 if (r.status == 200) {
                     let val = r.valores
-                    console.log(val)
                     val.map((iten) => {
                         if(iten[0] == codigo){
                              localStorage.setItem("gavetas",JSON.stringify(val))
@@ -132,10 +131,10 @@
                 <div class="card-info">4 GAVETAS<br>100 PEÇAS</div>
             </div> -->
     </div>
-
+<!-- 
     <div class="button-area">
         <button class="btn">Gerar Relatório</button>
-    </div>
+    </div> -->
 
 </body>
 
